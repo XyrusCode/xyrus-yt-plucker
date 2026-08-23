@@ -63,7 +63,6 @@ pub fn ytdlp_command(
     }
     Ok(cmd)
 }
-}
 
 /// Official release asset matching this platform. yt-dlp publishes
 /// standalone single-file binaries that run without Python installed.
