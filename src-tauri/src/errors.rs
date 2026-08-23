@@ -99,6 +99,10 @@ const LOGIN_SIGNATURES: &[&str] = &[
     "join this channel",
     "confirm your age",
     "age-restricted",
+    // Chrome holds the cookie DB while running (yt-dlp #7271); the bundled
+    // ChromeCookieUnlock plugin usually clears this, otherwise cookies.txt does.
+    "could not copy",
+    "cookie database",
 ];
 
 /// Signatures that historically mean the bundled yt-dlp rotted against a

@@ -11,3 +11,5 @@
 /src-tauri/.cargo/
 /dev.ps1
 /build.ps1
+
+.wrangler/
