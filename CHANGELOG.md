@@ -4,6 +4,25 @@ All notable changes to Video Plucker (Desktop) are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.1] - 2026-08-23
+
+### Fixed
+
+- Browser-cookie downloads no longer fail with "Could not copy Chrome cookie
+  database" while Chrome is running: the bundled ChromeCookieUnlock yt-dlp
+  plugin is now actually loaded (it shipped since v4.4.0 but was never passed
+  to yt-dlp via `--plugin-dirs`).
+- Cookie profiles saved as "x.com" now serve twitter.com links (and vice
+  versa), matching how the sites share logins.
+- The cookie-copy failure now shows plain-language guidance instead of the
+  raw error.
+
+### Note
+
+Version numbering continues from the last feature release line at the
+maintainer's request; v4.10–v4.13 releases contained no functional changes
+over v4.5.0.
+
 ## [4.13.0] - 2026-08-22
 
 ### Added

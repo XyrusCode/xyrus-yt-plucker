@@ -37,15 +37,31 @@ pub fn updated_engine_path(app: &AppHandle) -> Option<PathBuf> {
     path.is_file().then_some(path)
 }
 
+/// Directory of bundled yt-dlp plugins (ChromeCookieUnlock et al.), when the
+/// packaged resources are present.
+pub fn plugins_dir(app: &AppHandle) -> Option<PathBuf> {
+    let dir = app.path().resource_dir().ok()?.join("yt-dlp-plugins");
+    dir.is_dir().then_some(dir)
+}
+
 /// Spawn command for yt-dlp: the self-updated copy when present, otherwise
-/// the bundled sidecar. Drop-in replacement for `.sidecar("yt-dlp")`.
+/// the bundled sidecar — always with the bundled plugin directory loaded so
+/// ChromeCookieUnlock can patch around locked Chromium cookie databases
+/// (yt-dlp #7271). Drop-in replacement for `.sidecar("yt-dlp")`.
 pub fn ytdlp_command(
     app: &AppHandle,
 ) -> Result<tauri_plugin_shell::process::Command, String> {
-    match updated_engine_path(app) {
-        Some(path) => Ok(app.shell().command(path)),
-        None => app.shell().sidecar("yt-dlp").map_err(|e| e.to_string()),
+    let mut cmd = match updated_engine_path(app) {
+        Some(path) => app.shell().command(path),
+        None => app.shell().sidecar("yt-dlp").map_err(|e| e.to_string())?,
+    };
+    if let Some(dir) = plugins_dir(app) {
+        cmd = cmd.args([
+            "--plugin-dirs".to_string(),
+            dir.to_string_lossy().into_owned(),
+        ]);
     }
+    Ok(cmd)
 }
 
 /// Official release asset matching this platform. yt-dlp publishes

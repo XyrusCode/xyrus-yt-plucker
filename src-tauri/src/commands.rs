@@ -91,9 +91,12 @@ fn detect_platform(url: &str) -> Option<&'static str> {
 /// profile saved as "vk_video" or "vkontakte" still serves vk.com URLs.
 /// `name.contains(alias)` is the test: VK profile names survive the
 /// "VK Video" → "vk_video" sanitizer and the "vkontakte" legacy name.
+/// Twitter aliases cover profiles saved as either domain (x.com links map
+/// to the same "twitter" platform as twitter.com links).
 fn platform_aliases(platform: Option<&str>) -> &'static [&'static str] {
     match platform {
         Some("vk") => &["vk", "vkontakte"],
+        Some("twitter") => &["x.com", "twitter"],
         _ => &[],
     }
 }
@@ -284,6 +287,22 @@ mod tests {
         assert_eq!(
             settings_cookie_file(&dir, "https://github.com/").as_deref(),
             None
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn x_com_profiles_serve_twitter_links() {
+        let dir = test_cookie_dir("xcom");
+        std::fs::write(dir.join("x.com.txt"), "").unwrap();
+        // A profile named after either domain must serve both hosts.
+        assert_eq!(
+            settings_cookie_file(&dir, "https://twitter.com/user/status/123").as_deref(),
+            Some(dir.join("x.com.txt").to_str().unwrap())
+        );
+        assert_eq!(
+            settings_cookie_file(&dir, "https://x.com/user/status/123").as_deref(),
+            Some(dir.join("x.com.txt").to_str().unwrap())
         );
         std::fs::remove_dir_all(&dir).unwrap();
     }
